@@ -11,6 +11,10 @@ public class DesktopLauncher {
 		config.setForegroundFPS(60);
 		config.setTitle("My GDX Game");
 		new Lwjgl3Application(new MyGdxGame(), config);
+
+		//window MOET hier gedefined worden! (anders werkt het niet)
+		config.setTitle("Insect Rumble");
+		config.setWindowedMode(700, 400);
 	}
 
 
