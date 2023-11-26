@@ -5,7 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 public class Ant extends Insect {
 
 
-    public Ant(int initialHealth, int initialSpeed, int initialAttackPower) {
+    public Ant(int initialHealth, int initialSpeed, int initialAttackPower ) {
         super(initialHealth, initialSpeed, initialAttackPower);
     }
 }

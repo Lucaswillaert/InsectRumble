@@ -1,10 +1,15 @@
 package com.mygdx.game.Insects;
 
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
-public class Insect extends Actor {
+public class Insect extends Actor  {
     private static int health;
-    private static int speed;
+    private static int speed = 60 * 2;
+    private int targetX;
+    private int targetY;
+    //private Sprite sprite;
     private int attackPower;
 
     public Insect(int health, int speed, int attackPower) {
