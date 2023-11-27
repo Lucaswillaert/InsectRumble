@@ -26,10 +26,9 @@ public class MyGdxGame extends ApplicationAdapter {
 	 Sprite sprite; // Sprite --> object dat weergegeven moet worden
 	private AssetManager assetManager;
 
-	private Ladybug player;
+	private Insect player;
 
-	private float playerX = 200;
-	private float playerY = 200;
+
 	@Override
 	public void create () {
 
@@ -57,6 +56,9 @@ public class MyGdxGame extends ApplicationAdapter {
 		map = assetManager.get("map.tmx");
 		renderer = new OrthogonalTiledMapRenderer(map);
 		centerCameraOnPlayer();
+
+
+		randomizePlayerPosition();
 	}
 
 	@Override
@@ -118,6 +120,41 @@ public class MyGdxGame extends ApplicationAdapter {
 		 camera.update();
 
 	 }
+
+
+	// Methode om de spelerpositie te randomizeren
+	private void randomizePlayerPosition() {
+		float mapWidth = map.getProperties().get("width", Integer.class) * map.getProperties().get("tilewidth", Integer.class);
+		float mapHeight = map.getProperties().get("height", Integer.class) * map.getProperties().get("tileheight", Integer.class);
+
+		float randomX = 0, randomY = 0;
+		boolean spawnOnObject = true;
+
+		// Blijf doorgaan totdat een geldige spawnlocatie is gevonden (niet op een object layer)
+		while (spawnOnObject) {
+			randomX = MathUtils.random(0, mapWidth - player.getWidth());
+			randomY = MathUtils.random(0, mapHeight - player.getHeight());
+
+			// Controleer of de gegenereerde positie zich op een object layer bevindt
+			spawnOnObject = isOnObjectLayer(randomX, randomY);
+		}
+
+		player.setPosition(randomX, randomY);
+	}
+
+	// Methode om te controleren of de opgegeven positie zich op een object layer bevindt
+	private boolean isOnObjectLayer(float x, float y) {
+		// Vervang "objectLayer" door de naam van je object layer in de TMX-map
+		TiledMapTileLayer objectLayer = (TiledMapTileLayer) map.getLayers().get("objectLayer");
+																			// objectLayer --> naam van de object layer in de TMX-map, INVULLEN!
+		// Converteer x en y naar celcoördinaten
+		int cellX = (int) (x / objectLayer.getTileWidth());
+		int cellY = (int) (y / objectLayer.getTileHeight());
+
+		// Controleer of de cel op de object layer leeg is (bijvoorbeeld geen object aanwezig)
+		TiledMapTileLayer.Cell cell = objectLayer.getCell(cellX, cellY);
+		return cell != null;
+	}
 
 }
 
