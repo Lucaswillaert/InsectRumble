@@ -14,31 +14,34 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.mygdx.game.Insects.Insect;
 import com.mygdx.game.Insects.Ladybug;
+import com.mygdx.game.PowerUp.HealthUp;
+import com.mygdx.game.PowerUp.SpeedUp;
+import com.mygdx.game.PowerUp.StrengthUp;
 
 public class MyGdxGame extends ApplicationAdapter {
 	private TiledMap map;
 	private OrthogonalTiledMapRenderer renderer;
 	OrthographicCamera camera; // OrthographicCamera --> 2D camera
-	SpriteBatch batch; // SpriteBatch --> object dat weergegeven moet worden
+	SpriteBatch batch; // SpriteBatch --> object dat sprites kan renderen
 	 Sprite sprite; // Sprite --> object dat weergegeven moet worden
 	private AssetManager assetManager;
-
 	private Insect player;
 
+	//powerups
+	Array<HealthUp> healthUps = new Array<>();
+	Array<SpeedUp> speedUps = new Array<>();
+	Array<StrengthUp> strengthUps = new Array<>();
 
 	@Override
 	public void create () {
-
-
-
 		camera = new OrthographicCamera(); // verkrijgen width en height van het scherm
 		camera.setToOrtho(false,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 		batch = new SpriteBatch();
 		assetManager = new AssetManager(new InternalFileHandleResolver());
-
 
 		// 1 malige loading
 		assetManager.setLoader(TiledMap.class, new TmxMapLoader(new InternalFileHandleResolver()));
@@ -46,19 +49,19 @@ public class MyGdxGame extends ApplicationAdapter {
 		// Wacht tot alle assets zijn geladen
 		assetManager.finishLoading();
 
-
 		//creeëren van instantie Ladybug als speler en zet initiële positie
 		player = new Ladybug(100, 100, 100);
 		player.setPosition(Gdx.graphics.getWidth()/2 - player.getWidth()/2, Gdx.graphics.getHeight() / 2 - player.getHeight() / 2);
 
+		strengthUps.add(new StrengthUp(200,200));
 
-		// Haal de TiledMap op nadat deze is geladen
+
+		// Haal de TiledMap op na deze geladen is
 		map = assetManager.get("map.tmx");
 		renderer = new OrthogonalTiledMapRenderer(map);
 		centerCameraOnPlayer();
 
-
-		randomizePlayerPosition();
+		//randomizePlayerPosition();
 	}
 
 	@Override
@@ -71,20 +74,70 @@ public class MyGdxGame extends ApplicationAdapter {
 			handleInput();
 			camera.update();
 			renderer.setView(camera);
-
 			batch.setProjectionMatrix(camera.combined);
 
 			//hier renderen we de objects, de map en de camera
 			batch.begin();
 			renderer.render();
-			player.draw(batch,1);
+			player.draw(batch,1); //1 --> laag/diepte waarop speler getekend is
+
+
+			// Render de power-ups
+			for (HealthUp healthUp : healthUps) {
+				batch.draw(healthUp.getTexture(), healthUp.getX(), healthUp.getY());
+			}
+
+			for (SpeedUp speedUp : speedUps) {
+				batch.draw(speedUp.getTexture(), speedUp.getX(), speedUp.getY());
+			}
+
+			for (StrengthUp strengthUp : strengthUps) {
+				batch.draw(strengthUp.getTexture(), strengthUp.getX(), strengthUp.getY());
+			}
 
 			batch.end();
 
+			update(Gdx.graphics.getDeltaTime());
 		}
 
 	}
-	
+
+	// Update-methode voor de game-logica
+
+
+	private void update(float delta) {
+		player.update(delta); // Update de speler
+
+		// Update de power-ups
+		for (HealthUp healthUp : healthUps) {
+			healthUp.update(delta);
+
+			if (player.getBounds().overlaps(healthUp.getBounds())) {
+				healthUps.removeValue(healthUp, true);
+				player.increaseHealth(20);
+			}
+		}
+
+		for (SpeedUp speedUp : speedUps) {
+			speedUp.update(delta);
+
+			if (player.getBounds().overlaps(speedUp.getBounds())) {
+				speedUps.removeValue(speedUp, true);
+				player.increaseSpeed(20);
+			}
+		}
+
+		for (StrengthUp strengthUp : strengthUps) {
+			strengthUp.update(delta);
+			if (player.getBounds().overlaps(strengthUp.getBounds())) {
+				strengthUps.removeValue(strengthUp, true);
+				player.increaseStrength(20);
+			}
+		}
+
+		centerCameraOnPlayer();
+	}
+
 	@Override
 	public void dispose () {
 		map.dispose();
@@ -92,11 +145,12 @@ public class MyGdxGame extends ApplicationAdapter {
 		assetManager.dispose();
 
 	}
-
-
-	//movement logicatie van de speler
+	//movementlogica
 	public void handleInput() {
 		float moveSpeed = 100f;
+		float attackSpeed = 100f;
+		float originalY = player.getY(); // Oorspronkelijke Y-positie opslaan.
+
 
 		if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
 			player.setX(player.getX() - moveSpeed * Gdx.graphics.getDeltaTime());
@@ -111,17 +165,30 @@ public class MyGdxGame extends ApplicationAdapter {
 			player.setY(player.getY() + moveSpeed * Gdx.graphics.getDeltaTime());
 		}
 
-		// Centreren van de camera op de speler na beweging
+		/*
+		if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+			player.setY(player.getY() + attackSpeed * Gdx.graphics.getDeltaTime());
+
+			// Wacht een korte tijd (bijv. 0.2 seconden) om de aanval te simuleren.
+			try {
+				Thread.sleep(120);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			// Keer terug naar de oorspronkelijke positie.
+			player.setY(originalY);
+		}
+		*/
 		centerCameraOnPlayer();
 	}
-	//centreren van de speler op de camera
+	//Centreren van de speler
 	 private void centerCameraOnPlayer(){
 		 camera.position.set(player.getX() + player.getWidth() / 2, player.getY() + player.getHeight() / 2, 0);
 		 camera.update();
 
 	 }
-
-
+/*
 	// Methode om de spelerpositie te randomizeren
 	private void randomizePlayerPosition() {
 		float mapWidth = map.getProperties().get("width", Integer.class) * map.getProperties().get("tilewidth", Integer.class);
@@ -156,6 +223,12 @@ public class MyGdxGame extends ApplicationAdapter {
 		return cell != null;
 	}
 
+ */
+
+
+
 }
+
+
 
 

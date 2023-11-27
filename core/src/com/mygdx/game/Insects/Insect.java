@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
 public class Insect extends Actor  {
@@ -12,12 +13,25 @@ public class Insect extends Actor  {
     private static int speed = 60 * 2;
 
     private Sprite sprite;
-    private int attackPower;
+
+    public static void setHealth(int health) {
+        Insect.health = health;
+    }
+
+    public static void setSpeed(int speed) {
+        Insect.speed = speed;
+    }
+
+    public void setStrength(int strength) {
+        this.strength = strength;
+    }
+
+    private int strength;
 
     public Insect(int health, int speed, int attackPower) {
         this.health = health;
         this.speed = speed;
-        this.attackPower = attackPower;
+        this.strength = attackPower;
         sprite =new Sprite();
     }
 
@@ -32,8 +46,8 @@ public class Insect extends Actor  {
         return speed;
     }
 
-    public int getAttackPower() {
-        return attackPower;
+    public int getStrength() {
+        return strength;
     }
 
 
@@ -51,7 +65,13 @@ public class Insect extends Actor  {
 
     private int calculateDamage() {
         // Implementeer hier logica voor het berekenen van schade op basis van aanvalssterkte en mogelijk andere factoren
-        return attackPower;
+        health -= strength;
+        if (health <=0){
+
+        }
+
+
+       return 0;
     }
 
     public void increaseHealth(int healthUp){
@@ -62,14 +82,25 @@ public class Insect extends Actor  {
     }
     public void increaseSpeed(int speedUp) {
         this.speed += speedUp;
-        if (speed > 100){
-            speed = 100; //speed niet boven 100
+
+    }
+
+    public void increaseStrength(int StrengthUp){
+        this.strength += StrengthUp;
+        if (strength > 100){
+            strength = 100; //health niet boven 100
         }
     }
 
     @Override
     public void act(float delta) {
         handleInput();
+    }
+
+
+    public void update(float delta) {
+        // Voer hier logica uit die nodig is voor het bijwerken van het insect.
+        // Dit kan bijvoorbeeld zijn voor animaties, timers, enzovoort.
     }
 
 
@@ -87,6 +118,17 @@ public class Insect extends Actor  {
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
             moveBy(0, speed * Gdx.graphics.getDeltaTime());
         }
+    }
+
+
+
+    @Override
+    public void draw(Batch batch, float parentAlpha) {
+        batch.draw(sprite, getX(), getY(), getWidth(), getHeight());
+    }
+
+    public Rectangle getBounds() {
+        return new Rectangle(getX(), getY(), getWidth(), getHeight());
     }
 
 
