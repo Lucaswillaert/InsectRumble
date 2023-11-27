@@ -24,16 +24,15 @@ public class MyGdxGame extends ApplicationAdapter {
 	OrthographicCamera camera; // OrthographicCamera --> 2D camera
 	SpriteBatch batch; // SpriteBatch --> object dat weergegeven moet worden
 	 Sprite sprite; // Sprite --> object dat weergegeven moet worden
-
-	private float rotationSpeed;
-	Insect insect;
-
-
 	private AssetManager assetManager;
 
+	private Ladybug player;
+
+	private float playerX = 200;
+	private float playerY = 200;
 	@Override
 	public void create () {
-		rotationSpeed = 0.5f; //rotatie zetten op 0.5graden per frame
+
 
 
 		camera = new OrthographicCamera(); // verkrijgen width en height van het scherm
@@ -41,18 +40,23 @@ public class MyGdxGame extends ApplicationAdapter {
 		batch = new SpriteBatch();
 		assetManager = new AssetManager(new InternalFileHandleResolver());
 
+
 		// 1 malige loading
 		assetManager.setLoader(TiledMap.class, new TmxMapLoader(new InternalFileHandleResolver()));
 		assetManager.load("map.tmx", TiledMap.class);
 		// Wacht tot alle assets zijn geladen
 		assetManager.finishLoading();
+
+
+		//creeëren van instantie Ladybug als speler en zet initiële positie
+		player = new Ladybug(100, 100, 100);
+		player.setPosition(Gdx.graphics.getWidth()/2 - player.getWidth()/2, Gdx.graphics.getHeight() / 2 - player.getHeight() / 2);
+
+
 		// Haal de TiledMap op nadat deze is geladen
 		map = assetManager.get("map.tmx");
 		renderer = new OrthogonalTiledMapRenderer(map);
-
-		Ladybug Ladybug = new Ladybug(100,100,100);
-
-
+		centerCameraOnPlayer();
 	}
 
 	@Override
@@ -62,22 +66,18 @@ public class MyGdxGame extends ApplicationAdapter {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 		if (assetManager.update()){
-			//handleInput();
+			handleInput();
 			camera.update();
 			renderer.setView(camera);
 
 			batch.setProjectionMatrix(camera.combined);
-			batch.begin();
+
 			//hier renderen we de objects, de map en de camera
-
-
-
+			batch.begin();
 			renderer.render();
+			player.draw(batch,1);
+
 			batch.end();
-
-
-
-
 
 		}
 
@@ -86,52 +86,38 @@ public class MyGdxGame extends ApplicationAdapter {
 	@Override
 	public void dispose () {
 		map.dispose();
+		batch.dispose();
+		assetManager.dispose();
 
 	}
 
 
-/*
-	private void handleInput() {
-
-		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-
+	//movement logicatie van de speler
+	public void handleInput() {
 		float moveSpeed = 100f;
 
 		if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-			camera.translate(-moveSpeed, 0, 0);
-			//If the LEFT Key is pressed, translate the camera -3 units in the X-Axis
+			player.setX(player.getX() - moveSpeed * Gdx.graphics.getDeltaTime());
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-			camera.translate(moveSpeed, 0, 0);
-			//If the RIGHT Key is pressed, translate the camera 3 units in the X-Axis
+			player.setX(player.getX() + moveSpeed * Gdx.graphics.getDeltaTime());
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-			camera.translate(0, -moveSpeed, 0);
-			//If the DOWN Key is pressed, translate the camera -3 units in the Y-Axis
+			player.setY(player.getY() - moveSpeed * Gdx.graphics.getDeltaTime());
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-			camera.translate(0, moveSpeed, 0);
-			//If the UP Key is pressed, translate the camera 3 units in the Y-Axis
+			player.setY(player.getY() + moveSpeed * Gdx.graphics.getDeltaTime());
 		}
 
-
-		camera.zoom = MathUtils.clamp(camera.zoom, 0.1f, 100/camera.viewportWidth);
-
-		float effectiveViewportWidth = camera.viewportWidth * camera.zoom;
-		float effectiveViewportHeight = camera.viewportHeight * camera.zoom;
-
-		camera.position.x = MathUtils.clamp(camera.position.x, effectiveViewportWidth / 2f, 100 - effectiveViewportWidth / 2f);
-		camera.position.y = MathUtils.clamp(camera.position.y, effectiveViewportHeight / 2f, 100 - effectiveViewportHeight / 2f);
-
-
-		camera.update();
-
-		System.out.println("Camera Position: (" + camera.position.x + ", " + camera.position.y + ")");
-		System.out.println("Camera Zoom: " + camera.zoom);
+		// Centreren van de camera op de speler na beweging
+		centerCameraOnPlayer();
 	}
+	//centreren van de speler op de camera
+	 private void centerCameraOnPlayer(){
+		 camera.position.set(player.getX() + player.getWidth() / 2, player.getY() + player.getHeight() / 2, 0);
+		 camera.update();
 
-*/
-
+	 }
 
 }
 
