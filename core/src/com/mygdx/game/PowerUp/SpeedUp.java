@@ -18,7 +18,7 @@ public class SpeedUp extends Actor {
         return texture;
     }
     public SpeedUp(){
-        texture = new Texture("speedUp.png");
+        texture = new Texture("speedup.png");
         setBounds(getX(), getY(), texture.getWidth(), texture.getHeight());
     }
 

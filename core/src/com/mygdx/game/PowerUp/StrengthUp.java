@@ -11,7 +11,7 @@ public class StrengthUp extends Actor {
     private Texture texture;
 
     public StrengthUp(float x, float y){
-        texture = new Texture("ant.png");
+        texture = new Texture("strength.png");
         setBounds(getX(), getY(), texture.getWidth(), texture.getHeight());
     }
 

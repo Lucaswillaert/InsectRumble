@@ -6,16 +6,12 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ScreenUtils;
 import com.mygdx.game.Insects.Insect;
 import com.mygdx.game.Insects.Ladybug;
 import com.mygdx.game.PowerUp.HealthUp;
@@ -31,13 +27,18 @@ public class MyGdxGame extends ApplicationAdapter {
 	private AssetManager assetManager;
 	private Insect player;
 
+
 	//powerups
 	Array<HealthUp> healthUps = new Array<>();
 	Array<SpeedUp> speedUps = new Array<>();
 	Array<StrengthUp> strengthUps = new Array<>();
 
+
+
 	@Override
 	public void create () {
+
+
 		camera = new OrthographicCamera(); // verkrijgen width en height van het scherm
 		camera.setToOrtho(false,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 		batch = new SpriteBatch();
@@ -138,13 +139,6 @@ public class MyGdxGame extends ApplicationAdapter {
 		centerCameraOnPlayer();
 	}
 
-	@Override
-	public void dispose () {
-		map.dispose();
-		batch.dispose();
-		assetManager.dispose();
-
-	}
 	//movementlogica
 	public void handleInput() {
 		float moveSpeed = 100f;
@@ -225,7 +219,13 @@ public class MyGdxGame extends ApplicationAdapter {
 
  */
 
+	@Override
+	public void dispose () {
+		map.dispose();
+		batch.dispose();
+		assetManager.dispose();
 
+	}
 
 }
 

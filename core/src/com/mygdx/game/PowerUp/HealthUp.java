@@ -13,7 +13,7 @@ public class HealthUp extends Actor {
     private Texture texture;
 
     public HealthUp() {
-        texture = new Texture("healthUp.png");
+        texture = new Texture("Health.png");
         setBounds(getX(), getY(), texture.getWidth(), texture.getHeight());
     }
     public Texture getTexture() {
