@@ -9,7 +9,9 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.MathUtils;
@@ -32,6 +34,9 @@ public class GameScreen extends ScreenAdapter {
     private Insect player;
 
     private float speedBoostDuration = 0;
+
+
+     private static final String COLLISION_LAYER_NAME = "Collisions";
 
     private static final int NUM_HEALTH_UP_SPAWNS = 10;
     private static final int NUM_SPEED_UP_SPAWNS = 10;
@@ -59,7 +64,6 @@ public class GameScreen extends ScreenAdapter {
 
         camera = new OrthographicCamera(); // verkrijgen width en height van het scherm
         camera.setToOrtho(false, Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
-        batch = new SpriteBatch();
         assetManager = new AssetManager(new InternalFileHandleResolver());
 
         // 1 malige loading
@@ -105,7 +109,7 @@ public class GameScreen extends ScreenAdapter {
 
 
 
-        //randomizePlayerPosition();
+        randomizePlayerPosition();
     }
 
     @Override
@@ -215,21 +219,33 @@ public class GameScreen extends ScreenAdapter {
     public void handleInput() {
         float moveSpeed = 100f;
         float attackSpeed = 100f;
+        float playerX = player.getX();
+        float playerY = player.getY();
         float originalY = player.getY(); // Oorspronkelijke Y-positie opslaan.
 
 
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            player.setX(player.getX() - moveSpeed * Gdx.graphics.getDeltaTime());
+            if (!isOnCollisionLayer(playerX - moveSpeed, playerY)) {
+                player.setX(player.getX() - moveSpeed * Gdx.graphics.getDeltaTime());
+            }
+
         }
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            player.setX(player.getX() + moveSpeed * Gdx.graphics.getDeltaTime());
+            if (!isOnCollisionLayer(playerX + player.getWidth() + moveSpeed, playerY)) {
+                player.setX(playerX + moveSpeed * Gdx.graphics.getDeltaTime());
+            }
         }
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            player.setY(player.getY() - moveSpeed * Gdx.graphics.getDeltaTime());
+            if (!isOnCollisionLayer(playerX, playerY - moveSpeed)) {
+                player.setY(playerY - moveSpeed * Gdx.graphics.getDeltaTime());
+            }
         }
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            player.setY(player.getY() + moveSpeed * Gdx.graphics.getDeltaTime());
+            if (!isOnCollisionLayer(playerX, playerY + player.getHeight() + moveSpeed)) {
+                player.setY(playerY + moveSpeed * Gdx.graphics.getDeltaTime());
+            }
         }
+
 
 		/*
 		if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
@@ -258,42 +274,51 @@ public class GameScreen extends ScreenAdapter {
 
 
     }
-/*
+
 	// Methode om de spelerpositie te randomizeren
 	private void randomizePlayerPosition() {
 		float mapWidth = map.getProperties().get("width", Integer.class) * map.getProperties().get("tilewidth", Integer.class);
 		float mapHeight = map.getProperties().get("height", Integer.class) * map.getProperties().get("tileheight", Integer.class);
 
 		float randomX = 0, randomY = 0;
-		boolean spawnOnObject = true;
+		boolean spawnOnCollisionLayer = true;
 
 		// Blijf doorgaan totdat een geldige spawnlocatie is gevonden (niet op een object layer)
-		while (spawnOnObject) {
+		while (spawnOnCollisionLayer) {
 			randomX = MathUtils.random(0, mapWidth - player.getWidth());
 			randomY = MathUtils.random(0, mapHeight - player.getHeight());
 
 			// Controleer of de gegenereerde positie zich op een object layer bevindt
-			spawnOnObject = isOnObjectLayer(randomX, randomY);
+			spawnOnCollisionLayer = isOnCollisionLayer(randomX, randomY);
 		}
 
 		player.setPosition(randomX, randomY);
 	}
 
 	// Methode om te controleren of de opgegeven positie zich op een object layer bevindt
-	private boolean isOnObjectLayer(float x, float y) {
+	private boolean isOnCollisionLayer(float x, float y) {
+        Gdx.app.log("Collision Check", "Checking collision layer...");
+
 		// Vervang "objectLayer" door de naam van je object layer in de TMX-map
-		TiledMapTileLayer objectLayer = (TiledMapTileLayer) map.getLayers().get("objectLayer");
-																			// objectLayer --> naam van de object layer in de TMX-map, INVULLEN!
-		// Converteer x en y naar celcoördinaten
-		int cellX = (int) (x / objectLayer.getTileWidth());
-		int cellY = (int) (y / objectLayer.getTileHeight());
+		TiledMapTileLayer objectLayer = (TiledMapTileLayer)  map.getLayers().get(COLLISION_LAYER_NAME);
+                                                // objectLayer --> naam van de object layer in de TMX-map, INVULLEN
 
-		// Controleer of de cel op de object layer leeg is (bijvoorbeeld geen object aanwezig)
-		TiledMapTileLayer.Cell cell = objectLayer.getCell(cellX, cellY);
-		return cell != null;
-	}
+        if (objectLayer != null) {
+            // Convert x en y naar cel coordinaten
+            int cellX = (int) (x / objectLayer.getTileWidth());
+            int cellY = (int) (y / objectLayer.getTileHeight());
 
- */
+            Gdx.app.log("Collision Check", "Cell Coordinates: (" + cellX + ", " + cellY + ")");
+
+            // Check if the cell is on the collision layer and not null
+            TiledMapTileLayer.Cell cell = objectLayer.getCell(cellX, cellY);
+            return cell != null;
+        }
+        // Return false if the collision layer is not found
+        return false;
+    }
+
+
     private void restartGame() {
 
     // Reset de snelheid en de duur van de snelheidsboost
