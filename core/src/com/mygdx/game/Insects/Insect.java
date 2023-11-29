@@ -28,7 +28,6 @@ public class Insect extends Actor  {
     public int getSpeed() {
         return speed;
     }
-
     public int getStrength() {
         return strength;
     }

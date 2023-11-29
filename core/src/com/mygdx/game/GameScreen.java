@@ -24,7 +24,7 @@ import com.mygdx.game.PowerUp.StrengthUp;
 
 public class GameScreen extends ScreenAdapter {
 
-   private final MyGdxGame game;
+    private final MyGdxGame game;
     private TiledMap map;
     private OrthogonalTiledMapRenderer renderer;
     OrthographicCamera camera; // OrthographicCamera --> 2D camera
@@ -36,7 +36,7 @@ public class GameScreen extends ScreenAdapter {
     private float speedBoostDuration = 0;
 
 
-     private static final String COLLISION_LAYER_NAME = "Collisions";
+    private static final String COLLISION_LAYER_NAME = "Collisions";
 
     private static final int NUM_HEALTH_UP_SPAWNS = 10;
     private static final int NUM_SPEED_UP_SPAWNS = 10;
@@ -64,6 +64,7 @@ public class GameScreen extends ScreenAdapter {
 
         camera = new OrthographicCamera(); // verkrijgen width en height van het scherm
         camera.setToOrtho(false, Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+        batch = new SpriteBatch();
         assetManager = new AssetManager(new InternalFileHandleResolver());
 
         // 1 malige loading
@@ -111,6 +112,7 @@ public class GameScreen extends ScreenAdapter {
 
         randomizePlayerPosition();
     }
+
 
     @Override
     public void render (float delta) {
@@ -166,6 +168,8 @@ public class GameScreen extends ScreenAdapter {
 
     }
 
+
+
     @Override
     public void show(){
         create();
@@ -195,7 +199,7 @@ public class GameScreen extends ScreenAdapter {
             }
         }
 
-            //verlaag de duur van de snelheidsboost bij elke frame
+        //verlaag de duur van de snelheidsboost bij elke frame
         if (speedBoostDuration > 0) {
             speedBoostDuration -= delta;
             if (speedBoostDuration <= 0) {
@@ -275,33 +279,33 @@ public class GameScreen extends ScreenAdapter {
 
     }
 
-	// Methode om de spelerpositie te randomizeren
-	private void randomizePlayerPosition() {
-		float mapWidth = map.getProperties().get("width", Integer.class) * map.getProperties().get("tilewidth", Integer.class);
-		float mapHeight = map.getProperties().get("height", Integer.class) * map.getProperties().get("tileheight", Integer.class);
+    // Methode om de spelerpositie te randomizeren
+    private void randomizePlayerPosition() {
+        float mapWidth = map.getProperties().get("width", Integer.class) * map.getProperties().get("tilewidth", Integer.class);
+        float mapHeight = map.getProperties().get("height", Integer.class) * map.getProperties().get("tileheight", Integer.class);
 
-		float randomX = 0, randomY = 0;
-		boolean spawnOnCollisionLayer = true;
+        float randomX = 0, randomY = 0;
+        boolean spawnOnCollisionLayer = true;
 
-		// Blijf doorgaan totdat een geldige spawnlocatie is gevonden (niet op een object layer)
-		while (spawnOnCollisionLayer) {
-			randomX = MathUtils.random(0, mapWidth - player.getWidth());
-			randomY = MathUtils.random(0, mapHeight - player.getHeight());
+        // Blijf doorgaan totdat een geldige spawnlocatie is gevonden (niet op een object layer)
+        while (spawnOnCollisionLayer) {
+            randomX = MathUtils.random(0, mapWidth - player.getWidth());
+            randomY = MathUtils.random(0, mapHeight - player.getHeight());
 
-			// Controleer of de gegenereerde positie zich op een object layer bevindt
-			spawnOnCollisionLayer = isOnCollisionLayer(randomX, randomY);
-		}
+            // Controleer of de gegenereerde positie zich op een object layer bevindt
+            spawnOnCollisionLayer = isOnCollisionLayer(randomX, randomY);
+        }
 
-		player.setPosition(randomX, randomY);
-	}
+        player.setPosition(randomX, randomY);
+    }
 
-	// Methode om te controleren of de opgegeven positie zich op een object layer bevindt
-	private boolean isOnCollisionLayer(float x, float y) {
+    // Methode om te controleren of de opgegeven positie zich op een object layer bevindt
+    private boolean isOnCollisionLayer(float x, float y) {
         Gdx.app.log("Collision Check", "Checking collision layer...");
 
-		// Vervang "objectLayer" door de naam van je object layer in de TMX-map
-		TiledMapTileLayer objectLayer = (TiledMapTileLayer)  map.getLayers().get(COLLISION_LAYER_NAME);
-                                                // objectLayer --> naam van de object layer in de TMX-map, INVULLEN
+        // Vervang "objectLayer" door de naam van je object layer in de TMX-map
+        TiledMapTileLayer objectLayer = (TiledMapTileLayer)  map.getLayers().get(COLLISION_LAYER_NAME);
+        // objectLayer --> naam van de object layer in de TMX-map, INVULLEN
 
         if (objectLayer != null) {
             // Convert x en y naar cel coordinaten
@@ -309,6 +313,11 @@ public class GameScreen extends ScreenAdapter {
             int cellY = (int) (y / objectLayer.getTileHeight());
 
             Gdx.app.log("Collision Check", "Cell Coordinates: (" + cellX + ", " + cellY + ")");
+
+            // Zorg ervoor dat de celcoördinaten binnen de grenzen van de objectlaag blijven
+            cellX = MathUtils.clamp(cellX, 0, objectLayer.getWidth() - 1);
+            cellY = MathUtils.clamp(cellY, 0, objectLayer.getHeight() - 1);
+
 
             // Check if the cell is on the collision layer and not null
             TiledMapTileLayer.Cell cell = objectLayer.getCell(cellX, cellY);
@@ -319,12 +328,13 @@ public class GameScreen extends ScreenAdapter {
     }
 
 
+
     private void restartGame() {
 
-    // Reset de snelheid en de duur van de snelheidsboost
-    player.resetSpeed();
-    speedBoostDuration = 0;
-}
+        // Reset de snelheid en de duur van de snelheidsboost
+        player.resetSpeed();
+        speedBoostDuration = 0;
+    }
     @Override
     public void dispose () {
         map.dispose();
@@ -334,3 +344,4 @@ public class GameScreen extends ScreenAdapter {
     }
 
 }
+
