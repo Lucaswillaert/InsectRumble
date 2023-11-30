@@ -36,17 +36,12 @@ public class GameScreen extends ScreenAdapter {
     private static int score = 0;
     private static int health = 100;
     private static int maxHealth = 100;
-
     //map en camera
     private TiledMap map;
     private static final String COLLISION_LAYER_NAME = "Collisions";
     private OrthogonalTiledMapRenderer renderer;
-    OrthographicCamera camera; // OrthographicCamera --> 2D camera
+    OrthographicCamera camera; // 2D camera
     private AssetManager assetManager;
-
-
-    //score
-    //private int score = 0;
     private BitmapFont font;
     //powerups
     Array<HealthUp> healthUps = new Array<>();
@@ -55,14 +50,13 @@ public class GameScreen extends ScreenAdapter {
     private static final int NUM_HEALTH_UP_SPAWNS = 20;
     private static final int NUM_SPEED_UP_SPAWNS = 20;
     private static final int NUM_STRENGTH_UP_SPAWNS = 20;
-    private static final float SPAWN_AREA_WIDTH = 800; // Adjust this based on your map dimensions
+    private static final float SPAWN_AREA_WIDTH = 1600; // Adjust this based on your map dimensions
 
     public GameScreen(MyGdxGame game) {
         this.game = game;
         player = new Ladybug(100, 100, 100);  // Initialize the player object
         player.setPosition(Gdx.graphics.getWidth() / 2 - player.getWidth() / 2, Gdx.graphics.getHeight() / 2 - player.getHeight() / 2);
         font = new BitmapFont();
-
     }
     public void create () {
         Gdx.gl.glClearColor(0, 0, 0, 1);
@@ -82,11 +76,8 @@ public class GameScreen extends ScreenAdapter {
         map = assetManager.get("map.tmx");
         renderer = new OrthogonalTiledMapRenderer(map);
         centerCameraOnPlayer();
-
-
-
+        // Haal de collision layer op
         float mapHeight = map.getProperties().get("height", Integer.class) * map.getProperties().get("tileheight", Integer.class);
-
         // Randomly spawn HealthUps
         for (int i = 0; i < NUM_HEALTH_UP_SPAWNS; i++) {
             float randomX = MathUtils.random(0, SPAWN_AREA_WIDTH);
@@ -113,18 +104,12 @@ public class GameScreen extends ScreenAdapter {
             StrengthUp strengthUp = new StrengthUp(randomX, randomY);
             strengthUps.add(strengthUp);
         }
-
-
-
         randomizePlayerPosition();
     }
-
-
     @Override
     public void render (float delta) {
         //camera update + rendering
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
         if (assetManager.update()){
             handleInput();
             camera.update();
@@ -134,10 +119,8 @@ public class GameScreen extends ScreenAdapter {
             //hier renderen we de objects, de map en de camera
             batch.begin();
             try{
-
+                //renderen van de health/score
                 font.draw(batch, "Health: " + health + "/" + maxHealth, player.getX() - 230, player.getY() - 160);
-
-                // Render the score
                 font.draw(batch, "Score: " + score, player.getX() - 230, player.getY() - 180);
 
                 renderer.render();
@@ -146,11 +129,9 @@ public class GameScreen extends ScreenAdapter {
                 for (HealthUp healthUp : healthUps) {
                     batch.draw(healthUp.getTexture(), healthUp.getX(), healthUp.getY());
                 }
-
                 for (SpeedUp speedUp : speedUps) {
                     batch.draw(speedUp.getTexture(), speedUp.getX(), speedUp.getY());
                 }
-
                 for (StrengthUp strengthUp : strengthUps) {
                     batch.draw(strengthUp.getTexture(), strengthUp.getX(), strengthUp.getY());
                 }
@@ -165,10 +146,9 @@ public class GameScreen extends ScreenAdapter {
     public void show(){
         create();
     }
-    // Update-methode voor de game-logica
+
     private void update(float delta) {
         player.update(delta); // Update de speler
-        //update de positie van de health bar
         // Update de power-ups
         for (HealthUp healthUp : healthUps) {
             healthUp.update(delta);
@@ -210,10 +190,8 @@ public class GameScreen extends ScreenAdapter {
                 player.resetStrength(); // Voeg deze methode toe aan je Insect-klasse
             }
         }
-
         centerCameraOnPlayer();
     }
-
     //movementlogica
     public void handleInput() {
         float moveSpeed = 100f;
@@ -221,7 +199,6 @@ public class GameScreen extends ScreenAdapter {
         float playerX = player.getX();
         float playerY = player.getY();
         float originalY = player.getY(); // Oorspronkelijke Y-positie opslaan.
-
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && !isCollisionInDirection(playerX - moveSpeed, playerY, -1, 0)) {
                 player.setX(playerX - moveSpeed * Gdx.graphics.getDeltaTime());
         }
@@ -236,6 +213,7 @@ public class GameScreen extends ScreenAdapter {
                 player.setY(playerY + moveSpeed * Gdx.graphics.getDeltaTime());
         }
 
+        // Attack logic
 		/*
 		if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
 			player.setY(player.getY() + attackSpeed * Gdx.graphics.getDeltaTime());
@@ -264,7 +242,6 @@ public class GameScreen extends ScreenAdapter {
     private void randomizePlayerPosition() {
         float mapWidth = map.getProperties().get("width", Integer.class) * map.getProperties().get("tilewidth", Integer.class);
         float mapHeight = map.getProperties().get("height", Integer.class) * map.getProperties().get("tileheight", Integer.class);
-
         float randomX = 0, randomY = 0;
         boolean spawnOnCollisionLayer = true;
 
@@ -272,33 +249,28 @@ public class GameScreen extends ScreenAdapter {
         while (spawnOnCollisionLayer) {
             randomX = MathUtils.random(0, mapWidth - player.getWidth());
             randomY = MathUtils.random(0, mapHeight - player.getHeight());
-
             // Controleer of de gegenereerde positie zich op een object layer bevindt
             spawnOnCollisionLayer = isOnCollisionLayer(randomX, randomY);
         }
-
         player.setPosition(randomX, randomY);
     }
-
     // Methode om te controleren of de opgegeven positie zich op een object layer bevindt
     private boolean isOnCollisionLayer(float x, float y) {
 
 
         // Vervang "objectLayer" door de naam van je object layer in de TMX-map
         TiledMapTileLayer objectLayer = (TiledMapTileLayer)  map.getLayers().get(COLLISION_LAYER_NAME);
-        // objectLayer --> naam van de object layer in de TMX-map, INVULLEN
+                                                                                    // objectLayer --> naam van de object layer in de TMX-map, INVULLEN
 
         if (objectLayer != null) {
             // Convert x en y naar cel coordinaten
             int cellX = (int) (x / objectLayer.getTileWidth());
             int cellY = (int) (y / objectLayer.getTileHeight());
 
-
-            // Zorg ervoor dat de celcoördinaten binnen de grenzen van de objectlaag blijven
+            // celcoördinaten binnen de grenzen van de objectlaag blijven
             cellX = MathUtils.clamp(cellX, 0, objectLayer.getWidth() - 1);
             cellY = MathUtils.clamp(cellY, 0, objectLayer.getHeight() - 1);
-
-
+            //mathUti
             // Check if the cell is on the collision layer and not null
             TiledMapTileLayer.Cell cell = objectLayer.getCell(cellX, cellY);
             return cell != null;
@@ -306,7 +278,6 @@ public class GameScreen extends ScreenAdapter {
         // Return false if the collision layer is not found
         return false;
     }
-
     private boolean isCollisionInDirection(float x, float y, int deltaX, int deltaY) {
         TiledMapTileLayer objectLayer = (TiledMapTileLayer) map.getLayers().get(COLLISION_LAYER_NAME);
 
@@ -328,12 +299,7 @@ public class GameScreen extends ScreenAdapter {
         TiledMapTileLayer.Cell targetCell = objectLayer.getCell(targetCellX, targetCellY);
         return targetCell != null;
     }
-
-
-
-
     private void restartGame() {
-
         // Reset de snelheid en de duur van de snelheidsboost
         player.resetSpeed();
         speedBoostDuration = 0;
@@ -346,8 +312,6 @@ public class GameScreen extends ScreenAdapter {
         map.dispose();
         batch.dispose();
         assetManager.dispose();
-
     }
-
 }
 

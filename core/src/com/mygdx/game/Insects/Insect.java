@@ -87,21 +87,12 @@ public class Insect extends Actor  {
 
     @Override
     public void act(float delta) {
-        //handleInput();
         super.act(delta);
-        //GUI.updateHealthBar(health, maxHealth);
     }
-
-
     public void update(float delta) {
         // Voer hier logica uit die nodig is voor het bijwerken van het insect.
         // Dit kan bijvoorbeeld zijn voor animaties, timers, enzovoort.
     }
-
-
-
-
-
 
     @Override
     public void draw(Batch batch, float parentAlpha) {

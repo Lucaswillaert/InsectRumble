@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
-
 public class MenuScreen extends ScreenAdapter {
     private final MyGdxGame game;
     private OrthographicCamera camera;
@@ -20,8 +19,6 @@ public class MenuScreen extends ScreenAdapter {
     private Texture backgroundTexture;
     private  Texture titleTexture;
     private Music backgroundMusic;
-//private Texture soundonTexture;
-    //private Texture soundoffTexture;
 
     public MenuScreen(MyGdxGame game) {
         this.game = game;
@@ -37,10 +34,8 @@ public class MenuScreen extends ScreenAdapter {
         backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("Background_music.mp3"));
         backgroundMusic.setLooping(true);
         backgroundMusic.play();
-        //soundonTexture = new Texture(Gdx.files.internal("soundon.png"));
-        //soundoffTexture = new Texture(Gdx.files.internal("soundoff.png"));
-    }
 
+    }
     @Override
     public void render(float delta) {
         // Logica voor het renderen van het menu
@@ -59,42 +54,34 @@ public class MenuScreen extends ScreenAdapter {
 
         game.batch.draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-        // Tekenen van de titelafbeelding gecentreerd van boven
+        // titelafbeelding
         float titleX = (Gdx.graphics.getWidth() - titleTexture.getWidth()) / 2f;
         float titleY = Gdx.graphics.getHeight() - titleTexture.getHeight() - 20f; // Afstand van boven (20 pixels in dit voorbeeld)
         game.batch.draw(titleTexture, titleX, titleY);
 
-        // Bereken de verticale positie van de knoppen om ze onder elkaar te centreren
+        // knoppen onder elkaar te zetten
         float buttonHeight = singleplayerTexture.getHeight();
         float verticalSpace = 20f; // Meer ruimte tussen de knoppen
         float totalButtonHeight = 3 * buttonHeight + 2 * verticalSpace; // Hier 3 keer de knophoogte en 2 keer de ruimte ertussen
         float startY = (Gdx.graphics.getHeight() - totalButtonHeight) / 2f;
 
-        // Tekenen van de knoppen in omgekeerde volgorde
         game.batch.draw(quitTexture, (Gdx.graphics.getWidth() - quitTexture.getWidth()) / 2f, startY);
         game.batch.draw(multiplayerTexture, (Gdx.graphics.getWidth() - multiplayerTexture.getWidth()) / 2f, startY + buttonHeight + verticalSpace);
         game.batch.draw(singleplayerTexture, (Gdx.graphics.getWidth() - singleplayerTexture.getWidth()) / 2f, startY + 2 * (buttonHeight + verticalSpace));
-
         game.batch.end();
-
-
         handleInput();
-
     }
-
-
-
     private void handleInput() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            // Bijvoorbeeld, als de speler op Enter drukt, schakel over naar het GameScreen
+            //bij het drukken van de spatiebalk start het spel
             game.switchToGameScreen();
         }
         if (Gdx.input.isTouched()) {
-            // Coördinaten van de aanraking omzetten naar schermcoördinaten
+            // omzetten naar schermcoördinaten
             float touchX = Gdx.input.getX();
             float touchY = Gdx.graphics.getHeight() - Gdx.input.getY();
 
-            // Controleer of de aanraking zich binnen de grenzen van de knoppen bevindt
+            // knoppen aangeraakt --> uitvoeren
             if (isButtonPressed(quitTexture, touchX, touchY)) {
                 Gdx.app.exit(); // Beëindig de applicatie als "Quit" wordt aangeraakt
             } else if (isButtonPressed(multiplayerTexture, touchX, touchY)) {
@@ -105,18 +92,14 @@ public class MenuScreen extends ScreenAdapter {
             }
         }
     }
-
     private boolean isButtonPressed(Texture buttonTexture, float touchX, float touchY) {
         float buttonX = (Gdx.graphics.getWidth() - buttonTexture.getWidth()) / 2f;
         float buttonY = (Gdx.graphics.getHeight() - buttonTexture.getHeight()) / 2f;
         return touchX >= buttonX && touchX <= buttonX + buttonTexture.getWidth() &&
                 touchY >= buttonY && touchY <= buttonY + buttonTexture.getHeight();
     }
-
     @Override
     public void dispose() {
-        // Hier zou je code hebben om het menu op te ruimen
-
         backgroundMusic.dispose();
         singleplayerTexture.dispose();
         multiplayerTexture.dispose();
