@@ -3,35 +3,42 @@ package com.mygdx.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
 
 public class MenuScreen extends ScreenAdapter {
-
     private final MyGdxGame game;
     private OrthographicCamera camera;
-    private Texture soundonTexture;
-    private Texture soundoffTexture;
+    private SpriteBatch batch;
     private Texture singleplayerTexture;
     private Texture multiplayerTexture;
     private Texture quitTexture;
     private Texture backgroundTexture;
     private  Texture titleTexture;
-
+    private Music backgroundMusic;
+//private Texture soundonTexture;
+    //private Texture soundoffTexture;
 
     public MenuScreen(MyGdxGame game) {
         this.game = game;
         camera = new OrthographicCamera();
+        batch = new SpriteBatch();
+
         camera.setToOrtho(false, 800, 480);
-        //soundonTexture = new Texture(Gdx.files.internal("soundon.png"));
-        //soundoffTexture = new Texture(Gdx.files.internal("soundoff.png"));
         singleplayerTexture = new Texture("singleplayer.png");
         multiplayerTexture = new Texture("multiplayer.png");
         quitTexture = new Texture("quit.png");
         backgroundTexture = new Texture("background.jpg");
         titleTexture = new Texture("Title.png");
+        backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("Background_music.mp3"));
+        backgroundMusic.setLooping(true);
+        backgroundMusic.play();
+        //soundonTexture = new Texture(Gdx.files.internal("soundon.png"));
+        //soundoffTexture = new Texture(Gdx.files.internal("soundoff.png"));
     }
 
     @Override
@@ -68,10 +75,9 @@ public class MenuScreen extends ScreenAdapter {
         game.batch.draw(multiplayerTexture, (Gdx.graphics.getWidth() - multiplayerTexture.getWidth()) / 2f, startY + buttonHeight + verticalSpace);
         game.batch.draw(singleplayerTexture, (Gdx.graphics.getWidth() - singleplayerTexture.getWidth()) / 2f, startY + 2 * (buttonHeight + verticalSpace));
 
-
-
-
         game.batch.end();
+
+
         handleInput();
 
     }
@@ -92,9 +98,10 @@ public class MenuScreen extends ScreenAdapter {
             if (isButtonPressed(quitTexture, touchX, touchY)) {
                 Gdx.app.exit(); // Beëindig de applicatie als "Quit" wordt aangeraakt
             } else if (isButtonPressed(multiplayerTexture, touchX, touchY)) {
-                // Voeg hier logica toe voor multiplayer als dat nodig is
+                Gdx.app.exit();
             } else if (isButtonPressed(singleplayerTexture, touchX, touchY)) {
                 game.switchToGameScreen(); // Start het spel als "Singleplayer" wordt aangeraakt
+                backgroundMusic.stop();
             }
         }
     }
@@ -110,8 +117,7 @@ public class MenuScreen extends ScreenAdapter {
     public void dispose() {
         // Hier zou je code hebben om het menu op te ruimen
 
-        soundonTexture.dispose();
-        soundoffTexture.dispose();
+        backgroundMusic.dispose();
         singleplayerTexture.dispose();
         multiplayerTexture.dispose();
         quitTexture.dispose();

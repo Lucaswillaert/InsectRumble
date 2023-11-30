@@ -4,12 +4,14 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class Ant extends Insect {
     private Sprite sprite;
     
-    public Ant(int initialHealth, int initialSpeed, int initialAttackPower ) {
-        super(initialHealth, initialSpeed, initialAttackPower);
+    public Ant(int health, int speed, int strength) {
+        super( health, speed, strength);
         sprite = new Sprite (new Texture("ant.png"));
         setBounds(0 , 0 ,sprite.getWidth(), sprite.getHeight());
     }

@@ -2,7 +2,7 @@ package com.mygdx.game.Insects;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
@@ -10,12 +10,17 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 
 public class Insect extends Actor  {
     private  int health;
+    private int maxHealth ;
     private  int speed = 60 * 2;
     private int strength;
     private Sprite sprite;
 
+    private Color healthBarColor;
+
+
     public Insect(int health, int speed, int strength) {
         this.health = health;
+        this.maxHealth= 100;
         this.speed = speed;
         this.strength = strength;
         sprite =new Sprite();
@@ -39,6 +44,7 @@ public class Insect extends Actor  {
         if (health < 0){
             health = 0; //health niet onder 0 kan !
         }
+        //GUI.updateHealth(health, maxHealth);
     }
     public void attack(Ant target) {
         int damage = calculateDamage();
@@ -49,10 +55,7 @@ public class Insect extends Actor  {
         // Implementeer hier logica voor het berekenen van schade op basis van aanvalssterkte en mogelijk andere factoren
         health -= strength;
         if (health <=0){
-
         }
-
-
        return 0;
     }
 
@@ -75,12 +78,18 @@ public class Insect extends Actor  {
     }
 
     public void resetSpeed() {
-        this.speed = speed; // Stel originalSpeed in op de oorspronkelijke snelheid bij de constructie van het insect
+        this.speed = speed;
+    }
+
+    public void resetStrength() {
+        this.strength = strength;
     }
 
     @Override
     public void act(float delta) {
-        handleInput();
+        //handleInput();
+        super.act(delta);
+        //GUI.updateHealthBar(health, maxHealth);
     }
 
 
@@ -90,21 +99,7 @@ public class Insect extends Actor  {
     }
 
 
-    private void handleInput() {
-        // Gemeenschappelijke invoerlogica voor alle insecten
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            moveBy(-speed * Gdx.graphics.getDeltaTime(), 0);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            moveBy(speed * Gdx.graphics.getDeltaTime(), 0);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            moveBy(0, -speed * Gdx.graphics.getDeltaTime());
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            moveBy(0, speed * Gdx.graphics.getDeltaTime());
-        }
-    }
+
 
 
 
@@ -117,5 +112,7 @@ public class Insect extends Actor  {
         return new Rectangle(getX(), getY(), getWidth(), getHeight());
     }
 
-
+    public boolean isDead() {
+        return health <= 0;
+    }
 }

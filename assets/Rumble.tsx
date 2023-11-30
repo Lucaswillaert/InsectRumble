@@ -46,5 +46,8 @@
   <wangset name="River" type="mixed" tile="-1">
    <wangcolor name="" color="#ff0000" tile="-1" probability="1"/>
   </wangset>
+  <wangset name="road" type="edge" tile="-1">
+   <wangcolor name="" color="#ff0000" tile="-1" probability="1"/>
+  </wangset>
  </wangsets>
 </tileset>
